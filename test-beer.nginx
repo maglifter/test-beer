@@ -1,0 +1,24 @@
+server {
+	listen 80;
+	listen [::]:80;
+
+	server_name molfar.nginx *.molfar.nginx;
+	root /var/www/php/molfar/public;
+
+	index index.php index.html index.html;
+
+	location / {
+                add_header "Access-Control-Allow-Origin"  *;		
+                try_files $uri $uri/ /index.php?$query_string;
+        }
+
+	include php.conf;
+
+        location ~ /\.ht {
+                deny all;
+        }
+
+        location ~ /.well-known {
+                allow all;
+        }
+}
