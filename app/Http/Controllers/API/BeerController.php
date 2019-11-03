@@ -5,6 +5,11 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\Beer;
+use App\Http\Resources\Beer as BeerResource;
+
+use Validator;
+
 class BeerController extends Controller
 {
     /**

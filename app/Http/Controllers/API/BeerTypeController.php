@@ -5,6 +5,11 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\BeerType;
+use App\Http\Resources\BeerType as BeerTypeResource;
+
+use Validator;
+
 class BeerTypeController extends Controller
 {
     /**
@@ -14,7 +19,7 @@ class BeerTypeController extends Controller
      */
     public function index()
     {
-        //
+        return BeerTypeResource::collection(BeerType::all());
     }
 
     /**
@@ -25,7 +30,15 @@ class BeerTypeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $requestData = $request->all();
+        $validator = $this->getValidator($requestData);
+
+        if ($validator->fails()) {
+            return $validator->errors()->toJson();
+        }
+
+        $beerType = BeerType::create($requestData);
+        return new BeerTypeResource($beerType);
     }
 
     /**
@@ -36,7 +49,7 @@ class BeerTypeController extends Controller
      */
     public function show($id)
     {
-        //
+        return new BeerTypeResource(BeerType::find($id));
     }
 
     /**
@@ -48,7 +61,18 @@ class BeerTypeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $requestData = $request->all();
+        $validator = $this->getValidator($requestData);
+
+        if ($validator->fails()) {
+            return $validator->errors()->toJson();
+        }
+
+        $beerType = BeerType::findOrFail($id);
+        $beerType->fill($requestData);
+        $beerType->save();
+
+        return new BeerTypeResource($beerType);
     }
 
     /**
@@ -59,6 +83,17 @@ class BeerTypeController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $beerType = BeerType::findOrFail($id);
+
+        return response()->json([
+            'isDeleted' => $beerType->delete()
+        ]);
+    }
+
+    public function getValidator(array $fields)
+    {
+        return Validator::make($fields, [
+            'name' => 'required|max:255|unique:beer_types,name',
+          ]);
     }
 }
