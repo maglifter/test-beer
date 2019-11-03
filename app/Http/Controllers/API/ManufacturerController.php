@@ -17,9 +17,21 @@ class ManufacturerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ManufacturerResource::collection(Manufacturer::all());
+        $filters = $request->get('filters', []);
+
+        if(isset($filters['beerType'])) {
+            $beerType = $filters['beerType'];
+            $manufacturers = Manufacturer::whereHas('beers', function($query) use ($beerType) {
+                $query->whereHas('type', function($query) use ($beerType) {
+                    $query->where('name', $beerType);
+                });
+             })->get();
+        } else {
+            $manufacturers = Manufacturer::all();
+        }
+        return ManufacturerResource::collection($manufacturers);
     }
 
     /**
